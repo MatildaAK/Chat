@@ -2,6 +2,8 @@ defmodule Newchat.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Newchat.Chatrooms.Room
+
   schema "users" do
     field :username, :string
     field :email, :string
@@ -9,6 +11,7 @@ defmodule Newchat.Accounts.User do
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
     field :confirmed_at, :utc_datetime
+    has_many :rooms, Room
 
     timestamps(type: :utc_datetime)
   end

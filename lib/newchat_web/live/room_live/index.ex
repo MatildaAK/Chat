@@ -4,44 +4,72 @@ defmodule NewchatWeb.RoomLive.Index do
   alias Newchat.Chatrooms
   alias Newchat.Chatrooms.Room
 
+  def render(assigns) do
+    ~H"""
+    <div class="grid">
+      Created Rooms:
+      <%= if not is_nil(@rooms) do %>
+        <div
+          :for={value <- @rooms}
+          class=" p-2 odd:bg-violet-100  even:bg-teal-50 flex justify-center "
+        >
+          <.link class="flex justify-center w-full " href={~p"/rooms/#{value.id}?name=#{value.name}"}>
+            <%= value.name %>
+          </.link>
+        </div>
+      <% end %>
+      <.simple_form for={@form} id="room_form" phx-submit="save" phx-change="validate">
+        <.input
+          field={@form[:name]}
+          type="text"
+          label="Room name"
+          placeholder="type room name"
+          required
+        />
+
+        <:actions>
+          <.button phx-disable-with="Creating room..." class="w-full">Create room</.button>
+        </:actions>
+      </.simple_form>
+    </div>
+    """
+  end
+
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, stream(socket, :rooms, Chatrooms.list_rooms())}
-  end
+    changeset = Chatrooms.change_room(%Room{})
 
-  @impl true
-  def handle_params(params, _url, socket) do
-    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
-  end
-
-  defp apply_action(socket, :edit, %{"id" => id}) do
+    {:ok,
     socket
-    |> assign(:page_title, "Edit Room")
-    |> assign(:room, Chatrooms.get_room!(id))
+    |> assign(rooms: Chatrooms.list_rooms())
+    |> assign(form: to_form(changeset))}
   end
 
-  defp apply_action(socket, :new, _params) do
-    socket
-    |> assign(:page_title, "New Room")
-    |> assign(:room, %Room{})
+  def handle_event("validate", %{"room" => _data} = _params, socket) do
+    {:noreply, socket}
   end
 
-  defp apply_action(socket, :index, _params) do
-    socket
-    |> assign(:page_title, "Listing Rooms")
-    |> assign(:room, nil)
+  def handle_event("save", %{"room" => user_params} = params, socket) do
+    user = socket.assigns.current_user
+
+    case Chatrooms.create_room(user, user_params) do
+      {:ok, room} ->
+        {
+          :noreply,
+          socket
+          |> assign(rooms: Chatrooms.list_rooms())
+          |> put_flash(:info, "room created #{inspect(room.name)}")
+        }
+
+        {:error, %Ecto.Changeset{} = changeset} ->
+          {:nereply, assign(socket, form: to_form(changeset))}
+
+      _ ->
+        {:noreply, socket |> put_flash(:info, "error: #{inspect(params)}")}
+    end
   end
 
-  @impl true
-  def handle_info({NewchatWeb.RoomLive.FormComponent, {:saved, room}}, socket) do
-    {:noreply, stream_insert(socket, :rooms, room)}
-  end
-
-  @impl true
-  def handle_event("delete", %{"id" => id}, socket) do
-    room = Chatrooms.get_room!(id)
-    {:ok, _} = Chatrooms.delete_room(room)
-
-    {:noreply, stream_delete(socket, :rooms, room)}
+  def handle_event(_anything, params, socket) do
+    {:noreply, socket |> put_flash(:info, "Anything: #{inspect(params)}")}
   end
 end

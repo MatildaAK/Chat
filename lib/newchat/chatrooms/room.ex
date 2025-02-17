@@ -14,7 +14,7 @@ defmodule Newchat.Chatrooms.Room do
   @doc false
   def changeset(room, attrs) do
     room
-    |> cast(attrs, [:name])
+    |> cast(attrs, [:name, :user_id])
     |> validate_required([:name])
   end
 end
