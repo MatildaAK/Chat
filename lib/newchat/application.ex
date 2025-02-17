@@ -17,7 +17,8 @@ defmodule Newchat.Application do
       # Start a worker by calling: Newchat.Worker.start_link(arg)
       # {Newchat.Worker, arg},
       # Start to serve requests, typically the last entry
-      NewchatWeb.Endpoint
+      NewchatWeb.Endpoint,
+      NewchatWeb.Presence
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
