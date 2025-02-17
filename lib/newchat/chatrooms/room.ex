@@ -3,10 +3,12 @@ defmodule Newchat.Chatrooms.Room do
   import Ecto.Changeset
 
   alias Newchat.Accounts.User
+  alias Newchat.Chatmsg.Message
 
   schema "rooms" do
     field :name, :string
     belongs_to :user, User
+    has_many :messages, Message
 
     timestamps(type: :utc_datetime)
   end

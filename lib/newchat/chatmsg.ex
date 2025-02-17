@@ -21,6 +21,18 @@ defmodule Newchat.Chatmsg do
     Repo.all(Message)
   end
 
+  def list_messages(room_id) do
+    # query =
+    #   from m in Message,
+    #     join: u in User,
+    #     on: u.id == m.sender_id,
+    #     where: m.room_id == ^room_id,
+    #     select: %{message: m.message, sender: u.email}
+
+    query = from(m in Message, where: m.room_id == ^room_id)
+    Repo.all(query)
+  end
+
   @doc """
   Gets a single message.
 
@@ -49,8 +61,15 @@ defmodule Newchat.Chatmsg do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_message(attrs \\ %{}) do
-    %Message{}
+  # def create_message(attrs \\ %{}) do
+  #   %Message{}
+  #   |> Message.changeset(attrs)
+  #   |> Repo.insert()
+  # end
+
+  def create_message(room, attrs \\ %{}) do
+    room
+    |> Ecto.build_assoc(:messages, attrs)
     |> Message.changeset(attrs)
     |> Repo.insert()
   end
