@@ -4,6 +4,7 @@ defmodule NewchatWeb.RoomLive.Index do
   alias Newchat.Chatrooms
   alias Newchat.Chatrooms.Room
 
+  @impl true
   def render(assigns) do
     ~H"""
     <div class="grid">
@@ -49,6 +50,7 @@ defmodule NewchatWeb.RoomLive.Index do
     {:noreply, socket}
   end
 
+  @impl true
   def handle_event("save", %{"room" => user_params} = params, socket) do
     user = socket.assigns.current_user
 
