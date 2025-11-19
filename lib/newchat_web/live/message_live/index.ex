@@ -8,7 +8,7 @@ defmodule NewchatWeb.MessageLive.Index do
 
   @impl true
   def render(assigns) do
-     ~H"""
+    ~H"""
     <div class="">
       <b> People</b>
       <span class="text-green-300 font-bold animate-pulse">
@@ -17,14 +17,14 @@ defmodule NewchatWeb.MessageLive.Index do
       <ul>
         <%= for name <- @presence do %>
           <li class="odd:text-teal-500 even:text-teal-700">
-            <%= get_name(name) %>
+            {get_name(name)}
           </li>
         <% end %>
       </ul>
     </div>
     <div>
       <div class="font-bold pb-2 ">
-        Room name: <%= @room.name %>
+        Room name: {@room.name}
       </div>
       <div
         phx-update="stream"
@@ -45,14 +45,14 @@ defmodule NewchatWeb.MessageLive.Index do
         >
           <div class="flex justify-between">
             <div>
-              <%= show_user(@current_user.id, value) %>:
+              {show_user(@current_user.id, value)}:
             </div>
             <div>
-              <%= format_date(value.inserted_at) %>
+              {format_date(value.inserted_at)}
             </div>
           </div>
           <p class="px-4">
-            <%= value.message %>
+            {value.message}
           </p>
         </div>
       </div>
@@ -64,12 +64,12 @@ defmodule NewchatWeb.MessageLive.Index do
         </:actions>
       </.simple_form>
 
-      <.back navigate={~p"/lobby"}>Back to lobby</.back>
+      <.back navigate={~p"/#"}>Back to lobby</.back>
     </div>
     """
   end
 
-   @presence_topic "liveview_chat_presence"
+  @presence_topic "liveview_chat_presence"
 
   @impl true
   def mount(_params, _session, socket) do
@@ -109,7 +109,9 @@ defmodule NewchatWeb.MessageLive.Index do
   def handle_event("save", %{"message" => user_params} = params, socket) do
     user = socket.assigns.current_user
     room = socket.assigns.room
-    user_params = Map.merge(user_params, %{"sender_id" => user.id, "sender_name" => user.username})
+
+    user_params =
+      Map.merge(user_params, %{"sender_id" => user.id, "sender_name" => user.username})
 
     case Chatmsg.create_message(room, user_params) do
       {:ok, msg} ->
@@ -117,12 +119,11 @@ defmodule NewchatWeb.MessageLive.Index do
 
         {:noreply, push_event(socket, "clear-input", %{id: "message"})}
 
-        {:error, %Ecto.Changeset{} = changeset} ->
-          {:noreply, assign(socket, form: to_form(changeset))}
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, assign(socket, form: to_form(changeset))}
 
       _ ->
         {:noreply, socket |> put_flash(:info, "error: #{inspect(params)}")}
-
     end
   end
 
@@ -133,9 +134,9 @@ defmodule NewchatWeb.MessageLive.Index do
   @impl true
   def handle_info({:message_created, message}, socket) do
     {:noreply,
-      socket
-      |> stream_insert(:messages, message)
-      |> push_event("clear-input", %{id: "message"})}
+     socket
+     |> stream_insert(:messages, message)
+     |> push_event("clear-input", %{id: "message"})}
   end
 
   def handle_info(%{event: "presence_diff", payload: _diff}, socket) do
@@ -180,9 +181,8 @@ defmodule NewchatWeb.MessageLive.Index do
       {:ok, date} ->
         date
 
-        _ ->
-          datetime
+      _ ->
+        datetime
     end
   end
-
 end

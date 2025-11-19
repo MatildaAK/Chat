@@ -17,11 +17,11 @@ defmodule NewchatWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", NewchatWeb do
-    pipe_through :browser
+  # scope "/", NewchatWeb do
+  #   pipe_through :browser
 
-    get "/", PageController, :home
-  end
+  #   get "/", PageController, :home
+  # end
 
   # Other scopes may use custom stacks.
   # scope "/api", NewchatWeb do
@@ -69,9 +69,8 @@ defmodule NewchatWeb.Router do
       live "/users/settings", UserSettingsLive, :edit
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
 
-      live "/lobby", RoomLive.Index, :index
+      live "/", RoomLive.Index
       live "/rooms/:id", MessageLive.Index, :index
-
     end
   end
 

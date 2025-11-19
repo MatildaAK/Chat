@@ -15,7 +15,7 @@ defmodule NewchatWeb.RoomLive.Index do
           class=" p-2 odd:bg-violet-100  even:bg-teal-50 flex justify-center "
         >
           <.link class="flex justify-center w-full " href={~p"/rooms/#{value.id}?name=#{value.name}"}>
-            <%= value.name %>
+            {value.name}
           </.link>
         </div>
       <% end %>
@@ -41,9 +41,9 @@ defmodule NewchatWeb.RoomLive.Index do
     changeset = Chatrooms.change_room(%Room{})
 
     {:ok,
-    socket
-    |> assign(rooms: Chatrooms.list_rooms())
-    |> assign(form: to_form(changeset))}
+     socket
+     |> assign(rooms: Chatrooms.list_rooms())
+     |> assign(form: to_form(changeset))}
   end
 
   def handle_event("validate", %{"room" => _data} = _params, socket) do
@@ -63,8 +63,8 @@ defmodule NewchatWeb.RoomLive.Index do
           |> put_flash(:info, "room created #{inspect(room.name)}")
         }
 
-        {:error, %Ecto.Changeset{} = changeset} ->
-          {:nereply, assign(socket, form: to_form(changeset))}
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:nereply, assign(socket, form: to_form(changeset))}
 
       _ ->
         {:noreply, socket |> put_flash(:info, "error: #{inspect(params)}")}
