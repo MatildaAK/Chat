@@ -65,6 +65,10 @@ defmodule NewchatWeb.MessageLive.Index do
       </.simple_form>
 
       <.back navigate={~p"/#"}>Back to lobby</.back>
+      <button type="button" phx-click="generate_pdf">Generate PDF</button>
+      <div class="flex justify-between" id="download_file" phx-hook="DownloadFile">
+        <button phx-click="download_pdf">Ladda ner PDF</button>
+      </div>
     </div>
     """
   end
@@ -125,6 +129,65 @@ defmodule NewchatWeb.MessageLive.Index do
       _ ->
         {:noreply, socket |> put_flash(:info, "error: #{inspect(params)}")}
     end
+  end
+
+  # Generate a PFD in your root map
+  @impl true
+  def handle_event("generate_pdf", _params, socket) do
+    room = socket.assigns.room
+    messages = Chatmsg.list_messages(room.id)
+
+    html =
+      Phoenix.Template.render_to_string(
+        NewchatWeb.PdfHTML,
+        "chat",
+        "html",
+        room: room,
+        messages: messages
+      )
+
+    pdf_bin = PdfGenerator.generate_binary!(html)
+
+    safe_name =
+      room.name
+      |> String.replace(~r/[^a-zA-Z0-9_-]/, "_")
+
+    File.write!("#{safe_name}.pdf", pdf_bin)
+
+    {:noreply, socket}
+  end
+
+  # Download a PDF file to your PC (Download / Hämtade filer)
+  @impl true
+  def handle_event("download_pdf", _params, socket) do
+    room = socket.assigns.room
+    messages = Chatmsg.list_messages(room.id)
+
+    html =
+      Phoenix.Template.render_to_string(
+        NewchatWeb.PdfHTML,
+        "chat",
+        "html",
+        room: room,
+        messages: messages
+      )
+
+    {:ok, pdf_binary} = PdfGenerator.generate_binary(html)
+
+    # safe_name =
+    #   room.name
+    #   |> String.replace(~r/[^a-zA-Z0-9_-]/, "_")
+
+    # Add room.id or room.name to avoid duplicate file names
+    safe_name = "#{room.id}_#{room.name |> String.replace(~r/[^a-zA-Z0-9_-]/, "_")}"
+
+    {:noreply,
+      socket
+      |> push_event("download_file", %{
+          filename: "#{safe_name}.pdf",
+          binary: Base.encode64(pdf_binary)
+        })
+    }
   end
 
   def handle_event(_anything, _params, socket) do

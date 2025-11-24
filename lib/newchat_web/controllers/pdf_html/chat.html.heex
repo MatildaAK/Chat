@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    h1 { margin-bottom: 20px; }
+    .msg { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #ddd; }
+  </style>
+</head>
+
+<body>
+  <h1>Chatroom: <%= @room.name %></h1>
+
+  <%= for msg <- @messages do %>
+    <div class="msg">
+      <b><%= msg.sender_name %></b><br/>
+      <%= msg.message %><br/>
+      <small><%= Calendar.strftime(msg.inserted_at, "%Y-%m-%d %H:%M") %></small>
+    </div>
+  <% end %>
+</body>
+</html>
