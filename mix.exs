@@ -19,7 +19,7 @@ defmodule Newchat.MixProject do
   def application do
     [
       mod: {Newchat.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :pdf_generator]
     ]
   end
 
@@ -59,7 +59,9 @@ defmodule Newchat.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
-      {:timex, "~> 3.7.11"}
+      {:timex, "~> 3.7.11"},
+      {:bbmustache, "~> 1.12"},
+      {:pdf_generator, ">=0.5.5"}
     ]
   end
 
